@@ -1,0 +1,6 @@
+{
+  "name": "Lumina Select - Galeri Pemilihan Foto Klien",
+  "description": "Platform pemilihan foto fotografer & klien dengan sinkronisasi real-time, warna pastel estetik, dan diskusi komentar per foto.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

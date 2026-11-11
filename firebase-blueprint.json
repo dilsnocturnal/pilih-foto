@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "StudioProfile": {
+      "title": "Photographer Studio Profile",
+      "description": "Profile data for photographer studio including phone number and studio branding.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "studioName": { "type": "string", "maxLength": 120 },
+        "phoneNumber": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 150 },
+        "ownerName": { "type": "string", "maxLength": 100 },
+        "updatedAt": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["studioName", "phoneNumber"]
+    },
+    "Session": {
+      "title": "Photo Selection Session",
+      "description": "Represents a photography project session between a photographer and their client.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "clientName": { "type": "string", "maxLength": 100 },
+        "clientEmail": { "type": "string", "maxLength": 150 },
+        "clientAccessPin": { "type": "string", "maxLength": 20 },
+        "sessionGroup": { "type": "string", "maxLength": 80 },
+        "photographerUid": { "type": "string", "maxLength": 128 },
+        "photographerName": { "type": "string", "maxLength": 100 },
+        "studioName": { "type": "string", "maxLength": 120 },
+        "phoneNumber": { "type": "string", "maxLength": 30 },
+        "packageLimit": { "type": "number" },
+        "selectedCount": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "open", "submitted", "completed"],
+          "maxLength": 30
+        },
+        "clientNotes": { "type": "string", "maxLength": 2000 },
+        "coverPhotoUrl": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string", "maxLength": 100 },
+        "updatedAt": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["title", "clientName", "photographerUid", "packageLimit", "status"]
+    },
+    "Photo": {
+      "title": "Photo Item",
+      "description": "Represents an individual photo within a session, including selection state.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sessionId": { "type": "string", "maxLength": 128 },
+        "photographerUid": { "type": "string", "maxLength": 128 },
+        "filename": { "type": "string", "maxLength": 200 },
+        "url": { "type": "string", "maxLength": 2500 },
+        "thumbnailUrl": { "type": "string", "maxLength": 2500 },
+        "category": { "type": "string", "maxLength": 80 },
+        "isSelected": { "type": "boolean" },
+        "selectedBy": { "type": "string", "maxLength": 128 },
+        "commentCount": { "type": "number" },
+        "orderIndex": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 100 },
+        "updatedAt": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["sessionId", "photographerUid", "filename", "url", "isSelected"]
+    },
+    "Comment": {
+      "title": "Photo Comment",
+      "description": "A conversation comment left on a specific photo by either the client or photographer.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "photoId": { "type": "string", "maxLength": 128 },
+        "sessionId": { "type": "string", "maxLength": 128 },
+        "authorUid": { "type": "string", "maxLength": 128 },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "authorRole": {
+          "type": "string",
+          "enum": ["photographer", "client"],
+          "maxLength": 20
+        },
+        "message": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["photoId", "sessionId", "authorName", "authorRole", "message"]
+    }
+  },
+  "firestore": {
+    "/studios/{studioId}": {
+      "schema": "StudioProfile",
+      "description": "Photographer studio profile with phone number and studio details"
+    },
+    "/sessions/{sessionId}": {
+      "schema": "Session",
+      "description": "Root session documents created by photographers and accessed by clients"
+    },
+    "/sessions/{sessionId}/photos/{photoId}": {
+      "schema": "Photo",
+      "description": "Photos belonging to a specific session with real-time selection status"
+    },
+    "/sessions/{sessionId}/photos/{photoId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Real-time communication comments on specific photos between client and photographer"
+    }
+  }
+}

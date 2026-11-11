@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidSession(data) {
+      return data.title is string && data.title.size() <= 150 &&
+             data.clientName is string && data.clientName.size() <= 100 &&
+             data.packageLimit is number && data.packageLimit >= 1 && data.packageLimit <= 1000 &&
+             data.status in ['draft', 'open', 'submitted', 'completed'];
+    }
+
+    function isValidPhoto(data) {
+      return data.sessionId is string && data.sessionId.size() <= 128 &&
+             data.filename is string && data.filename.size() <= 200 &&
+             data.url is string && data.url.size() <= 900000 &&
+             data.isSelected is bool;
+    }
+
+    function isValidComment(data) {
+      return data.photoId is string && data.photoId.size() <= 128 &&
+             data.sessionId is string && data.sessionId.size() <= 128 &&
+             data.authorName is string && data.authorName.size() <= 100 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 1000;
+    }
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /studios/{studioId} {
+      allow get: if isValidId(studioId);
+      allow list: if true;
+      allow create, update, delete: if isValidId(studioId);
+    }
+
+    match /sessions/{sessionId} {
+      allow get: if isValidId(sessionId);
+      allow list: if true;
+      allow create: if isValidId(sessionId) && isValidSession(incoming());
+      allow update: if isValidId(sessionId);
+      allow delete: if isValidId(sessionId);
+
+      match /photos/{photoId} {
+        allow get: if isValidId(sessionId) && isValidId(photoId);
+        allow list: if isValidId(sessionId);
+        allow create, update, delete: if isValidId(sessionId) && isValidId(photoId) && isValidPhoto(incoming());
+
+        match /comments/{commentId} {
+          allow get: if isValidId(sessionId) && isValidId(photoId) && isValidId(commentId);
+          allow list: if isValidId(sessionId) && isValidId(photoId);
+          allow create: if isValidId(sessionId) && isValidId(photoId) && isValidId(commentId) && isValidComment(incoming());
+          allow update: if false;
+          allow delete: if isValidId(sessionId) && isValidId(photoId) && isValidId(commentId);
+        }
+      }
+    }
+  }
+}
